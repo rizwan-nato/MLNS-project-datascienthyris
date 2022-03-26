@@ -1,6 +1,5 @@
-# Data and credential
-tuh_eeg_seizure/v1.5.2/
-credential
+# Data
+data/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

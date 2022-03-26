@@ -2,17 +2,11 @@
 Classification of seizure types using EEG signals, analyzing the measurement with a network approach
 
 
-To download the data, you need to create a credential file of the sort:
+To download the data, you need to request credentials:
+Register here to get the credentials https://isip.piconepress.com/projects/tuh_eeg/html/request_access.php
+
+Then you can just run the command:
 
 ```sh
-USER=<username>
-PWD=<password>
-```
-
-You need to register here to get the credentials https://isip.piconepress.com/projects/tuh_eeg/html/request_access.php
-
-Then you can just run the script:
-
-```sh
-. download_data.sh
+rsync -auxvL nedc@www.isip.piconepress.com:data/eeg/tuh_eeg_seizure/v1.5.2/ data/
 ```
