@@ -1,7 +1,5 @@
 # Data
-data/
-data_processed/
-
+data*
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
