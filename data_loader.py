@@ -48,6 +48,7 @@ class EEGDataset(Dataset):
         }
 
         np.random.shuffle(self.paths)
+        self.paths = self.paths[:]
 
     def __len__(self):
         return len(self.paths)
