@@ -1,1 +1,13 @@
-ROOT_DIR: "./data_all_edge_attributes"
+ROOT_DIR: "./128_100"
+GPU: -1
+MODEL_STATE_FILE: "./ckpt"
+
+TRAINING_INFO:
+  BATCH_SIZE: 64
+  MODEL_TYPE: "CONV"
+  LR: 0.0001
+  EPOCHS: 50 
+  MODEL_ARGS:
+    hidden_size: 32
+    dropout_p: 0.5
+    n_layers: 2
