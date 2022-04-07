@@ -19,7 +19,17 @@ from dgl.nn import MaxPooling
 
 class BasicGraphModel(nn.Module):
 
-    def __init__(self, g, n_layers, input_size, hidden_size, output_size, nonlinearity,dropout_p=0.5):
+    def __init__(
+        self,
+        g, 
+        n_layers, 
+        input_size, 
+        hidden_size=32, 
+        output_size=16, 
+        nonlinearity=F.relu,
+        dropout_p=0.5
+        ):
+
         super().__init__()
 
         self.g = g
@@ -31,14 +41,14 @@ class BasicGraphModel(nn.Module):
 
         self.dropout = nn.Dropout(p = dropout_p)
         self.maxpool = MaxPooling()
-        self.FC = nn.Linear(output_size, 7)
+        self.FC = nn.Linear(output_size, 8)
 
     def forward(self, inputs):
         outputs = inputs
         for i, layer in enumerate(self.layers):
             outputs = layer(self.g, outputs)
         outputs = F.relu(self.dropout(outputs))
-        outputs = self.maxpool(outputs)
+        outputs = self.maxpool(self.g,outputs)
         outputs = self.FC(outputs)
         return F.softmax(outputs)
 
@@ -69,6 +79,6 @@ class AttGraphModel(nn.Module):
             outputs = layer(self.g, outputs)
             
         outputs = F.relu(self.dropout(outputs))
-        outputs = self.maxpool(outputs)
+        outputs = self.maxpool(self.g,outputs)
         outputs = self.FC(outputs)
         return F.softmax(outputs)
