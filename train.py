@@ -35,9 +35,7 @@ def train(model, loss_fcn, device, optimizer, train_dataloader, test_dataloader,
             features = features.to(device)
             labels = labels.to(device)
             model.g = subgraph
-            for layer in model.layers:
-                layer.g = subgraph
-            logits = model(features.float())
+            logits = model(subgraph, features.float())
             loss = loss_fcn(logits, labels.type(torch.LongTensor))
             optimizer.zero_grad()
             loss.backward()

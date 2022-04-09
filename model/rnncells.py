@@ -39,7 +39,7 @@ class GRUCell(nn.Module):
 
         if hx is None:
             hx = Variable(torch.zeros_like(input))
-
+        print(g, input.shape)
         reset_gate = torch.sigmoid(
             self.Theta_r_x(g, input) + self.Theta_r_h(g, hx)
             )

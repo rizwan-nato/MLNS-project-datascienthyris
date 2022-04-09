@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 import torch
 import torch.nn.functional as F
-from dgl import batch, from_networkx
+from dgl import batch, from_networkx, unbatch
 from dgl.data.ppi import LegacyPPIDataset
 from dgl.nn.pytorch import GraphConv
 from dgl.nn.pytorch import GATConv
@@ -96,13 +96,13 @@ class DCGRU(nn.Module):
         self.bias = bias
         self.output_size = 8
 
-        self.rnn_cell_list = nn.ModuleList()
+        self.layers = nn.ModuleList()
 
-        self.rnn_cell_list.append(GRUCell(self.input_size,
+        self.layers.append(GRUCell(self.input_size,
                                           self.hidden_size,
                                           self.bias))
-        for l in range(1, self.num_layers):
-            self.rnn_cell_list.append(GRUCell(self.hidden_size,
+        for l in range(1, self.n_layers):
+            self.layers.append(GRUCell(self.hidden_size,
                                               self.hidden_size,
                                               self.bias))
         self.fc = nn.Linear(self.hidden_size, self.output_size)
@@ -113,26 +113,26 @@ class DCGRU(nn.Module):
         # Input of shape (batch_size, seqence length, input_size)
         #
         # Output of shape (batch_size, output_size)
-
+        gs=unbatch(g)
         if hx is None:
             if torch.cuda.is_available():
-                h0 = Variable(torch.zeros(self.num_layers, input.size(0), self.hidden_size).cuda())
+                h0 = Variable(torch.zeros(self.n_layers, input.size(0), self.hidden_size).cuda())
             else:
-                h0 = Variable(torch.zeros(self.num_layers, input.size(0), self.hidden_size))
+                h0 = Variable(torch.zeros(self.n_layers, input.size(0), self.hidden_size))
         else:
              h0 = hx
         outs = []
 
         hidden = list()
-        for layer in range(self.num_layers):
+        for layer in range(self.n_layers):
             hidden.append(h0[layer, :, :])
-
+        print(input.shape)
         for t in range(input.size(1)):
-            for layer in range(self.num_layers):
+            for layer in range(self.n_layers):
                 if layer == 0:
-                    hidden_l = self.rnn_cell_list[layer](g, input[:, t, :], hidden[layer])
+                    hidden_l = self.layers[layer](gs[t], input[:, t, :], hidden[layer])
                 else:
-                    hidden_l = self.rnn_cell_list[layer](g, hidden[layer - 1],hidden[layer])
+                    hidden_l = self.layers[layer](g[t], hidden[layer - 1],hidden[layer])
                 hidden[layer] = hidden_l
             outs.append(hidden_l)
         out = outs[-1].squeeze()

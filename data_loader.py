@@ -8,13 +8,14 @@ from dgl import batch, from_networkx
 from torch.utils.data import Dataset
 import networkx as nx
 
-from config import ROOT_DIR
+from config import *
 
 def collate_fn(sample) :
     # concatenate graph, features and labels w.r.t batch size
     graphs, features, labels = map(list, zip(*sample))
-    graph = batch(graphs)
-    features = torch.from_numpy(np.concatenate(features))
+    graph = batch([batch(g) for g in graphs])
+    features = [np.array(f).reshape(1,100,19,128) for f in features]
+    features = torch.from_numpy(np.concatenate(features, axis=0))
     labels = torch.from_numpy(np.concatenate(np.array(labels).reshape(-1,1)))
     return graph, features, labels
 
@@ -108,7 +109,14 @@ class EEGDataset_GRU(Dataset):
             features.append([])
             G_dgl.append(from_networkx(g))
             for u in g.nodes('Signal'):
-                features[-1].append(u[1])
+                if u[1] == []:
+                    features[-1].append([0]*128)
+                    del G_dgl[-1]
+                    G_dgl.append(G_dgl[-1])
+                else:
+                    features[-1].append(u[1])
+
+                
         features = np.array(features, dtype=np.float32)
         label = self.dic_label[label]
         return G_dgl, features, label
