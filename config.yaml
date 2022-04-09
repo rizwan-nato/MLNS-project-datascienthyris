@@ -1,13 +1,13 @@
-ROOT_DIR: "data/" # "./128_100" 
+ROOT_DIR: "./128_100" 
 GPU: -1
 MODEL_STATE_FILE: "./ckpt"
 
 TRAINING_INFO:
   BATCH_SIZE: 64
   MODEL_TYPE: "CONV" #ou attention 
-  LR: 0.0001
+  LR: 0.00001
   EPOCHS: 5
   MODEL_ARGS:
-    hidden_size: 32
+    hidden_size: 128
     dropout_p: 0.5
     n_layers: 2

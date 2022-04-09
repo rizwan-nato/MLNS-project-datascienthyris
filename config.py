@@ -2,7 +2,7 @@ import yaml
 import torch
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-print(f'Device: {device} {torch.cuda.get_device_name(0)}')
+print(f'Device: {device}')
 
 
 with open('config.yaml') as f:

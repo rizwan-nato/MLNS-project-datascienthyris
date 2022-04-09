@@ -54,23 +54,23 @@ class BasicGraphModel(nn.Module):
 
 class AttGraphModel(nn.Module):
 
-    def __init__(self, g, input_size, hidden_size, output_size, nonlinearity, n_attention=2, heads = 4, dropout_p = 0.):
+    def __init__(self, g, input_size, hidden_size, output_size, nonlinearity= F.relu, n_layers= 3, heads = 4, dropout_p = 0.):
         super().__init__()
-        self.n_attention = n_attention
+        self.n_layers = n_layers
         self.g = g
         self.layers = nn.ModuleList()
         channels = hidden_size//heads
 
-        for i in range(n_attention-1):
+        for i in range(n_layers-1):
             if i ==0:
                 self.layers.append(GATConv(input_size, channels, num_heads=heads, attn_drop=dropout_p, feat_drop=dropout_p, activation = nonlinearity))
             else:
                 self.layers.append(GATConv(channels*heads, channels, num_heads=heads, attn_drop=dropout_p, feat_drop=dropout_p, activation = nonlinearity))
-        self.layers.append(GATConv(channels*heads, output_size, 6))
+        self.layers.append(GATConv(channels*heads, output_size, heads))
 
         self.dropout = nn.Dropout(p = dropout_p)
         self.maxpool = MaxPooling()
-        self.FC = nn.Linear(output_size, 7)
+        self.FC = nn.Linear(output_size, 8)
 
     def forward(self, inputs):
         outputs = inputs
