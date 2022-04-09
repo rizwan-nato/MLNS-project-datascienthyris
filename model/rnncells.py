@@ -11,7 +11,7 @@ class GRUCell(nn.Module):
         super(GRUCell, self).__init__()
         self.input_size = input_size
         self.hidden_size = hidden_size
-        self.bias = bias
+
         self.Theta_r_x = ChebConv(input_size, hidden_size, 2)
         self.Theta_r_h = ChebConv(hidden_size, hidden_size, 2)
 

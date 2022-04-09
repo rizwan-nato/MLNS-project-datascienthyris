@@ -112,7 +112,7 @@ def train_pipeline(
         train_dataset, test_dataset = EEGDataset_GRU(mode="train"), EEGDataset_GRU(mode="dev")
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, collate_fn=collate_fn)
     test_dataloader = DataLoader(test_dataset, batch_size=batch_size, collate_fn=collate_fn)
-    n_features, n_classes = train_dataset[0][1].shape[1], 8
+    n_features, n_classes = N_FEATURES, N_CLASS
     model = model_class(g=train_dataset[0][0], input_size = n_features, **model_args).to(device)
     loss_fcn = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr = lr)

@@ -1,6 +1,9 @@
 ROOT_DIR: "./128_100" 
 GPU: -1
 MODEL_STATE_FILE: "./ckpt"
+N_features: 128
+N_CLASS: 8
+
 
 TRAINING_INFO:
   BATCH_SIZE: 64
@@ -11,3 +14,4 @@ TRAINING_INFO:
     hidden_size: 64
     dropout_p: 0.7
     n_layers: 4
+
