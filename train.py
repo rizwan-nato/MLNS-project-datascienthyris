@@ -5,6 +5,8 @@ from tqdm import tqdm
 import time
 import numpy as np
 import pickle
+from sklearn.metrics import f1_score
+
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -24,6 +26,9 @@ def train(model, loss_fcn, device, optimizer, train_dataloader, test_dataloader,
         print(f'Epoch {epoch}/{epochs}')
         model.train()
         losses = []
+        scores_train = []
+        losses_train = []
+
         for batch, data in tqdm(enumerate(train_dataloader)):
             subgraph, features, labels = data
             subgraph = subgraph.to(device)
@@ -38,40 +43,45 @@ def train(model, loss_fcn, device, optimizer, train_dataloader, test_dataloader,
             loss.backward()
             optimizer.step()
             losses.append(loss.item())
+
+            predict = np.argmax(logits.data.cpu().numpy(), axis=1)
+            f1score = f1_score(labels.data.cpu().numpy(), predict, average="micro")
+            scores_train.append(f1score)
+
         loss_data = np.array(losses, dtype=np.float32).mean()
         print("Epoch {:05d} | Loss: {:.4f}".format(epoch + 1, loss_data))
         print(f"Time: {int(time.time()-t_i)} seconds")
 
-        if True: #epoch % 5 == 0:
-            scores_train = []
-            losses_train = []
-            for _, test_data in enumerate(train_dataloader):
-                subgraph, features, labels = test_data
-                subgraph = subgraph.clone().to(device)
-                features = features.clone().detach().to(device)
-                labels = labels.clone().detach().to(device)
-                f1_score, loss = evaluate(features.float(), model, subgraph, labels.float(), loss_fcn)
-                scores_train.append(f1_score)
-                losses_train.append(loss)
-            epoch_list_train.append(epoch)
-            f1_score_list_train.append(np.array(scores_train).mean())
-            loss_list_train.append(np.array(losses_train).mean())
-            print("F1-Score on train: {:.4f} ".format(np.array(scores_train).mean()))
+        epoch_list_train.append(epoch)
+        f1_score_list_train.append(np.array(scores_train).mean())
+        loss_list_train.append(np.array(loss_data).mean())
+        print("F1-Score on train: {:.4f} ".format(np.array(scores_train).mean()))
 
-            scores_test = []
-            losses_test = []
-            for _, test_data in enumerate(test_dataloader):
-                subgraph, features, labels = test_data
-                subgraph = subgraph.clone().to(device)
-                features = features.clone().detach().to(device)
-                labels = labels.clone().detach().to(device)
-                f1_score, loss = evaluate(features.float(), model, subgraph, labels.float(), loss_fcn)
-                scores_test.append(f1_score)
-                losses_test.append(loss)
-            epoch_list_test.append(epoch)
-            f1_score_list_test.append(np.array(scores_test).mean())
-            loss_list_test.append(np.array(losses_test).mean())
-            print("F1-Score on test: {:.4f} ".format(np.array(scores_test).mean()))
+        scores_test = []
+        losses_test = []
+        for _, test_data in enumerate(test_dataloader):
+            subgraph, features, labels = test_data
+            subgraph = subgraph.clone().to(device)
+            features = features.clone().detach().to(device)
+            labels = labels.clone().detach().to(device)
+            f1score, loss = evaluate(features.float(), model, subgraph, labels.float(), loss_fcn)
+            scores_test.append(f1score)
+            losses_test.append(loss)
+        epoch_list_test.append(epoch)
+        f1_score_list_test.append(np.array(scores_test).mean())
+        loss_list_test.append(np.array(losses_test).mean())
+        print("F1-Score on test: {:.4f} ".format(np.array(scores_test).mean()))
+        if epoch%5 == 0:
+            plt.plot(epoch_list_train,loss_list_train, label='train loss')
+            plt.plot(epoch_list_test,loss_list_test, label='train loss')
+            plt.legend()
+            plt.title("Loss over each step")
+            plt.show()
+            plt.plot(epoch_list_train,f1_score_list_train, label='train f1score')
+            plt.plot(epoch_list_test,f1_score_list_test, label='train f1score')
+            plt.legend()
+            plt.title("F1 score over each step")
+            plt.show()
 
     return epoch_list_train, f1_score_list_train, loss_list_train, epoch_list_test, f1_score_list_test, loss_list_test
 
@@ -99,7 +109,7 @@ def train_pipeline(
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, collate_fn=collate_fn)
     test_dataloader = DataLoader(test_dataset, batch_size=batch_size, collate_fn=collate_fn)
     n_features, n_classes = train_dataset[0][1].shape[1], 8
-    model = model_class(g=train_dataset[0][0], input_size = n_features, output_size = 64, **model_args).to(device)
+    model = model_class(g=train_dataset[0][0], input_size = n_features, **model_args).to(device)
     loss_fcn = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr = lr)
 
@@ -124,7 +134,7 @@ if __name__ == '__main__':
     # MODEL_ARGS['n_layers'] = 2
 
     for BATCH_SIZE in [16, 32, 64]:
-        for LR in [0.000001, 0.00001, 0.0001, 0.001]:
+        for LR in [0.00001, 0.0001, 0.001]:
             for hidden_size in [8, 16, 32]:
                 for n_layers in [1, 2, 3]:
 

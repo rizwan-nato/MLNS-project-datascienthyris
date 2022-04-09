@@ -6,8 +6,8 @@ TRAINING_INFO:
   BATCH_SIZE: 64
   MODEL_TYPE: "CONV" #ou attention 
   LR: 0.00001
-  EPOCHS: 5
+  EPOCHS: 50
   MODEL_ARGS:
-    hidden_size: 128
-    dropout_p: 0.5
-    n_layers: 2
+    hidden_size: 64
+    dropout_p: 0.7
+    n_layers: 4
