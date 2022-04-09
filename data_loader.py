@@ -59,10 +59,6 @@ class EEGDataset(Dataset):
         for u in G.nodes('Signal'):
             features.append(u[1])
         G = from_networkx(G)
-        features = np.array(features)
+        features = np.array(features, dtype=np.float32)
         label = self.dic_label[label]
         return G, features, label
-
-
-
-

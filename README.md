@@ -27,6 +27,4 @@ To lauch a training, you can either use the file model.train.py as an executable
 -  EPOCHS: length of the training
 -  MODEL_ARGS: additional parameters (accordingly to the parameters from the architecture you chose)
 
-
-
-
+In order to visualise the results, you can just execute visualisation.py

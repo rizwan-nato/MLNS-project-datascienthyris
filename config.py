@@ -1,4 +1,9 @@
 import yaml
+import torch
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print(f'Device: {device} {torch.cuda.get_device_name(0)}')
+
 
 with open('config.yaml') as f:
     cfg = yaml.safe_load(f)
