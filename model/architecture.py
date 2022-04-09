@@ -77,8 +77,9 @@ class AttGraphModel(nn.Module):
         for i, layer in enumerate(self.layers):
             outputs = torch.reshape(outputs,(outputs.shape[0],-1))
             outputs = layer(self.g, outputs)
-            
+        outputs = torch.reshape(outputs,(outputs.shape[0],-1))  
         outputs = F.relu(self.dropout(outputs))
         outputs = self.maxpool(self.g,outputs)
         outputs = self.FC(outputs)
+        print(outputs.shape)
         return F.softmax(outputs)
