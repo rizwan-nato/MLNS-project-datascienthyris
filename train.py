@@ -102,10 +102,14 @@ def train_pipeline(
     batch_size,
     lr,
     epochs,
-    model_args
+    model_args,
+    GRU=False
     ):
     device = torch.device("cpu" if GPU < 0 else "cuda:" + str(GPU))
-    train_dataset, test_dataset = EEGDataset(mode="train"), EEGDataset(mode="dev")
+    if not GRU:
+        train_dataset, test_dataset = EEGDataset(mode="train"), EEGDataset(mode="dev")
+    else:
+        train_dataset, test_dataset = EEGDataset_GRU(mode="train"), EEGDataset_GRU(mode="dev")
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, collate_fn=collate_fn)
     test_dataloader = DataLoader(test_dataset, batch_size=batch_size, collate_fn=collate_fn)
     n_features, n_classes = train_dataset[0][1].shape[1], 8
