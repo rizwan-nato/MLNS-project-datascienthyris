@@ -108,7 +108,7 @@ class DCGRU(nn.Module):
         self.fc = nn.Linear(self.hidden_size, self.output_size)
 
 
-    def forward(self, input, hx=None):
+    def forward(self, g,input, hx=None):
 
         # Input of shape (batch_size, seqence length, input_size)
         #
@@ -130,14 +130,12 @@ class DCGRU(nn.Module):
         for t in range(input.size(1)):
             for layer in range(self.num_layers):
                 if layer == 0:
-                    hidden_l = self.rnn_cell_list[layer](input[:, t, :], hidden[layer])
+                    hidden_l = self.rnn_cell_list[layer](g, input[:, t, :], hidden[layer])
                 else:
-                    hidden_l = self.rnn_cell_list[layer](hidden[layer - 1],hidden[layer])
+                    hidden_l = self.rnn_cell_list[layer](g, hidden[layer - 1],hidden[layer])
                 hidden[layer] = hidden_l
             outs.append(hidden_l)
-
         out = outs[-1].squeeze()
-
         out = self.fc(out)
 
         return out
