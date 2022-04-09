@@ -70,7 +70,7 @@ class AttGraphModel(nn.Module):
 
         self.dropout = nn.Dropout(p = dropout_p)
         self.maxpool = MaxPooling()
-        self.FC = nn.Linear(output_size, 8)
+        self.FC = nn.Linear(output_size*heads, 8)
 
     def forward(self, inputs):
         outputs = inputs
@@ -81,5 +81,4 @@ class AttGraphModel(nn.Module):
         outputs = F.relu(self.dropout(outputs))
         outputs = self.maxpool(self.g,outputs)
         outputs = self.FC(outputs)
-        print(outputs.shape)
         return F.softmax(outputs)
