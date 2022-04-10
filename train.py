@@ -42,7 +42,7 @@ def train(model, loss_fcn, device, optimizer, train_dataloader, test_dataloader,
         print("Epoch {:05d} | Loss: {:.4f}".format(epoch + 1, loss_data))
         print(f"Time: {int(time.time()-t_i)} seconds")
 
-        if True: #epoch % 5 == 0:
+        if True:
             scores_train = []
             losses_train = []
             for _, test_data in enumerate(train_dataloader):
@@ -113,7 +113,7 @@ if __name__ == '__main__':
     if MODEL_TYPE == 'CONV':
         model_class = BasicGraphModel
 
-    k = 0
+    k = 18
     EPOCHS = 5
 
     # BATCH_SIZE = 64
@@ -124,7 +124,8 @@ if __name__ == '__main__':
     # MODEL_ARGS['n_layers'] = 2
 
     for BATCH_SIZE in [16, 32, 64]:
-        for LR in [0.000001, 0.00001, 0.0001, 0.001]:
+        # for LR in [0.000001, 0.00001, 0.0001, 0.001]:
+        for LR in [0.0001, 0.001]:
             for hidden_size in [8, 16, 32]:
                 for n_layers in [1, 2, 3]:
 

@@ -58,7 +58,9 @@ def plot_results(idx, save=False):
 
     ax1.set_xlabel('epochs')
     ax1.set_ylabel('f1 score',color='red')
+    ax1.set_ylim(0,1)
     ax2.set_ylabel('loss',color='blue')
+    ax2.set_ylim(1.6,2.1)
 
     ax1.plot(epoch_list_train,f1_score_list_train,'--',label='f1 train',color='red')
     ax1.plot(epoch_list_test,f1_score_list_test,label='f1 test',color='red')
@@ -73,5 +75,5 @@ def plot_results(idx, save=False):
     if save:
         plt.savefig('results\\plots\\'+str(idx)+'.png')
 
-for i in range(17):
+for i in range(36):
     plot_results(i,save=True)
