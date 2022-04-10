@@ -7,10 +7,10 @@ import torch
 import torch.nn.functional as F
 from dgl import batch, from_networkx
 from dgl.data.ppi import LegacyPPIDataset
-from dgl.nn.pytorch import GraphConv
+from dgl.nn.pytorch import GraphConv, ChebConv
 from dgl.nn.pytorch import GATConv
 from sklearn.metrics import f1_score
-from torch import nn, optim
+from torch import dropout, nn, optim
 from torch.utils.data import DataLoader
 from torch.utils.data import Dataset, DataLoader
 import torch.nn as nn
@@ -80,5 +80,33 @@ class AttGraphModel(nn.Module):
         outputs = torch.reshape(outputs,(outputs.shape[0],-1))  
         outputs = F.relu(self.dropout(outputs))
         outputs = self.maxpool(self.g,outputs)
+        outputs = self.FC(outputs)
+        return F.softmax(outputs)
+
+
+
+class GRUModel(nn.Module):
+
+    def __init__(self, g, input_size, hidden_size, nonlinearity= F.relu, n_layers= 3, n_layer_GRU= 3, heads = 4, dropout_p = 0., gru_size= 32):
+
+        super().__init__()
+
+        self.g = g
+        self.layers = nn.ModuleList()
+        self.hidden_size = hidden_size
+        self.layers.append(GraphConv(input_size, hidden_size, activation=nonlinearity))
+        for i in range(n_layers - 1):
+            self.layers.append(ChebConv(hidden_size, hidden_size, activation=nonlinearity, k=2))
+        self.layers.append(ChebConv(hidden_size, hidden_size, k=2))
+        self.GRUs = nn.GRU(19, gru_size, num_layers=n_layer_GRU, batch_first= True, dropout = dropout_p)
+        self.FC = nn.Linear(gru_size, 8)
+
+    def forward(self, inputs):
+        outputs = inputs
+        for i, layer in enumerate(self.layers):
+            outputs = torch.reshape(outputs,(outputs.shape[0],-1))
+            outputs = layer(self.g, outputs)
+        outputs = torch.swapaxes(torch.reshape(outputs, (-1,19,self.hidden_size)),1,2)
+        outputs = self.GRUs(F.relu(outputs))[1][-1]
         outputs = self.FC(outputs)
         return F.softmax(outputs)
